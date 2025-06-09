@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.TingcheDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.yonghu_id as yonghuId
+        ,a.tingchequyu_id as tingchequyuId
+        ,a.tingche_paihao as tingchePaihao
+        ,a.tingche_chexing as tingcheChexing
+        ,a.tingche_time as tingcheTime
+        ,a.lixiao_time as lixiaoTime
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.TingcheView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,tingchequyu.tingchequyu_name as tingchequyuName
+        ,tingchequyu.tingchequyu_number as tingchequyuNumber
+        ,tingchequyu.tingchequyu_content as tingchequyuContent
+        ,tingchequyu.insert_time as insertTime
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.sex_types as sexTypes
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_email as yonghuEmail
+        ,yonghu.yonghu_banji_zhuanye as yonghuBanjiZhuanye
+        ,yonghu.yonghu_photo as yonghuPhoto
+
+        FROM tingche  a
+        left JOIN tingchequyu tingchequyu ON a.tingchequyu_id = tingchequyu.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.yonghuId != null">
+                and a.yonghu_id = #{params.yonghuId}
+            </if>
+            <if test="params.tingchequyuId != null">
+                and a.tingchequyu_id = #{params.tingchequyuId}
+            </if>
+            <if test=" params.tingchePaihao != '' and params.tingchePaihao != null and params.tingchePaihao != 'null' ">
+                and a.tingche_paihao like CONCAT('%',#{params.tingchePaihao},'%')
+            </if>
+            <if test=" params.tingcheChexing != '' and params.tingcheChexing != null and params.tingcheChexing != 'null' ">
+                and a.tingche_chexing like CONCAT('%',#{params.tingcheChexing},'%')
+            </if>
+            <if test=" params.tingcheTimeStart != '' and params.tingcheTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.tingche_time) >= UNIX_TIMESTAMP(#{params.tingcheTimeStart}) ]]>
+            </if>
+            <if test=" params.tingcheTimeEnd != '' and params.tingcheTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.tingche_time) <= UNIX_TIMESTAMP(#{params.tingcheTimeEnd}) ]]>
+            </if>
+            <if test=" params.lixiaoTimeStart != '' and params.lixiaoTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.lixiao_time) >= UNIX_TIMESTAMP(#{params.lixiaoTimeStart}) ]]>
+            </if>
+            <if test=" params.lixiaoTimeEnd != '' and params.lixiaoTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.lixiao_time) <= UNIX_TIMESTAMP(#{params.lixiaoTimeEnd}) ]]>
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+            <if test=" params.tingchequyuName != '' and params.tingchequyuName != null and params.tingchequyuName != 'null' ">
+                and tingchequyu.tingchequyu_name like CONCAT('%',#{params.tingchequyuName},'%')
+            </if>
+            <if test="params.tingchequyuNumberStart != null ">
+                <![CDATA[  and tingchequyu.tingchequyu_number >= #{params.tingchequyuNumberStart}   ]]>
+            </if>
+            <if test="params.tingchequyuNumberEnd != null ">
+                <![CDATA[  and tingchequyu.tingchequyu_number <= #{params.tingchequyuNumberEnd}   ]]>
+            </if>
+            <if test=" params.tingchequyuContent != '' and params.tingchequyuContent != null and params.tingchequyuContent != 'null' ">
+                and tingchequyu.tingchequyu_content like CONCAT('%',#{params.tingchequyuContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(tingchequyu.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(tingchequyu.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test="params.sexTypes != null">
+                and yonghu.sex_types = #{params.sexTypes}
+            </if>
+
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+            <if test=" params.yonghuBanjiZhuanye != '' and params.yonghuBanjiZhuanye != null and params.yonghuBanjiZhuanye != 'null' ">
+                and yonghu.yonghu_banji_zhuanye like CONCAT('%',#{params.yonghuBanjiZhuanye},'%')
+            </if>
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>

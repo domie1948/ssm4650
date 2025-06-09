@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.CheweiDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.chewei_bianhao as cheweiBianhao
+        ,a.chewei_name as cheweiName
+        ,a.tingchequyu_id as tingchequyuId
+        ,a.chewei_content as cheweiContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.CheweiView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,tingchequyu.tingchequyu_name as tingchequyuName
+        ,tingchequyu.tingchequyu_number as tingchequyuNumber
+        ,tingchequyu.tingchequyu_content as tingchequyuContent
+        ,tingchequyu.insert_time as insertTime
+
+        FROM chewei  a
+        left JOIN tingchequyu tingchequyu ON a.tingchequyu_id = tingchequyu.id
+
+        <where>
+            <if test=" params.cheweiBianhao != '' and params.cheweiBianhao != null and params.cheweiBianhao != 'null' ">
+                and a.chewei_bianhao like CONCAT('%',#{params.cheweiBianhao},'%')
+            </if>
+            <if test=" params.cheweiName != '' and params.cheweiName != null and params.cheweiName != 'null' ">
+                and a.chewei_name like CONCAT('%',#{params.cheweiName},'%')
+            </if>
+            <if test="params.tingchequyuId != null">
+                and a.tingchequyu_id = #{params.tingchequyuId}
+            </if>
+            <if test=" params.cheweiContent != '' and params.cheweiContent != null and params.cheweiContent != 'null' ">
+                and a.chewei_content like CONCAT('%',#{params.cheweiContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+            <if test=" params.tingchequyuName != '' and params.tingchequyuName != null and params.tingchequyuName != 'null' ">
+                and tingchequyu.tingchequyu_name like CONCAT('%',#{params.tingchequyuName},'%')
+            </if>
+            <if test="params.tingchequyuNumberStart != null ">
+                <![CDATA[  and tingchequyu.tingchequyu_number >= #{params.tingchequyuNumberStart}   ]]>
+            </if>
+            <if test="params.tingchequyuNumberEnd != null ">
+                <![CDATA[  and tingchequyu.tingchequyu_number <= #{params.tingchequyuNumberEnd}   ]]>
+            </if>
+            <if test=" params.tingchequyuContent != '' and params.tingchequyuContent != null and params.tingchequyuContent != 'null' ">
+                and tingchequyu.tingchequyu_content like CONCAT('%',#{params.tingchequyuContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(tingchequyu.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(tingchequyu.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>
